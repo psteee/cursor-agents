@@ -103,6 +103,13 @@ export function createFetchHandler() {
         }
       }
 
+      // GET /hello/hello world
+      if (pathname === "/hello/hello world" && method === "GET") {
+        return new Response("hello world", {
+          headers: { "Content-Type": "text/plain; charset=utf-8" },
+        });
+      }
+
       // 404 fallback
       return jsonResponse({ error: "Not found" }, { status: 404 });
     } catch (error) {
