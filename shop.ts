@@ -1,5 +1,4 @@
-// Generatore di prodotti di demo usando cursor-agent
-
+// FILE: shop.ts
 export type Product = {
   id: number;
   name: string;
@@ -7,38 +6,42 @@ export type Product = {
   description: string;
 };
 
-export const generateDemoProducts = async (count: number = 5): Promise<Product[]> => {
+export const generateProducts = async (count: number = 5): Promise<Product[]> => {
   const prompt = `
-Per favore crea ${count} prodotti per un piccolo negozio online.
+Per favore crea ${count} prodotti di abbigliamento per un negozio online.
 Rispondi SOLO con un array JSON di oggetti nel formato:
 [
-  { "name": "Nome prodotto", "price": 9.99, "description": "Descrizione breve" }
+  { "name": "Nome prodotto", "price": 29.99, "description": "Descrizione breve del prodotto" }
 ]
 Nessun testo aggiuntivo fuori dal JSON.
 `;
 
-  const child = Bun.spawn([
-    "cursor-agent",
-    "--model",
-    "composer-1",
-    "--print",
-    prompt,
-  ]);
-
-  const raw = await child.stdout.text();
-
-  // Prova a ripulire l'output nel caso ci siano testi prima/dopo il JSON
-  const start = raw.indexOf("[");
-  const end = raw.lastIndexOf("]");
-  const jsonSlice =
-    start !== -1 && end !== -1 && end > start ? raw.slice(start, end + 1) : raw;
-
   try {
+    const child = Bun.spawn([
+      "cursor-agent",
+      "--model",
+      "composer-1",
+      "--print",
+      prompt,
+    ]);
+
+    const raw = await child.stdout.text();
+    const exitCode = await child.exited;
+
+    if (exitCode !== 0) {
+      console.error("[shop] cursor-agent ha restituito un errore");
+      throw new Error("Errore nella generazione prodotti");
+    }
+
+    const start = raw.indexOf("[");
+    const end = raw.lastIndexOf("]");
+    const jsonSlice =
+      start !== -1 && end !== -1 && end > start ? raw.slice(start, end + 1) : raw;
+
     const parsed = JSON.parse(jsonSlice) as Array<
       Omit<Product, "id"> & Partial<Pick<Product, "id">>
     >;
 
-    // Normalizza i prodotti e assegna un id incrementale
     return parsed.map((p, index) => ({
       id: p.id ?? index + 1,
       name: p.name ?? `Prodotto ${index + 1}`,
@@ -46,26 +49,12 @@ Nessun testo aggiuntivo fuori dal JSON.
       description: p.description ?? "",
     }));
   } catch (error) {
-    console.error("[shop] Errore nel parsing dei prodotti generati da cursor-agent");
-    console.error("[shop] Output grezzo:", raw);
-    console.error("[shop] Slice provato come JSON:", jsonSlice);
-    console.error("[shop] Dettagli errore:", error);
-
-    // Fallback nel caso in cui la risposta non sia JSON valido
-    return [
-      {
-        id: 1,
-        name: "Prodotto di backup 1",
-        price: 9.99,
-        description: "Creato come fallback perché il JSON non era valido.",
-      },
-      {
-        id: 2,
-        name: "Prodotto di backup 2",
-        price: 19.99,
-        description: "Creato come fallback perché il JSON non era valido.",
-      },
-    ];
+    console.error("[shop] Errore nella generazione prodotti:", error);
+    return Array.from({ length: count }, (_, index) => ({
+      id: index + 1,
+      name: `Prodotto abbigliamento ${index + 1}`,
+      price: 29.99 + index * 10,
+      description: "Prodotto di abbigliamento generato automaticamente",
+    }));
   }
 };
-

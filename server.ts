@@ -1,5 +1,4 @@
-// Entry point del server: importa solo la logica definita altrove
-
+// FILE: server.ts
 import { port, createFetchHandler } from "./server-logic";
 
 const server = Bun.serve({
@@ -7,5 +6,4 @@ const server = Bun.serve({
   fetch: createFetchHandler(),
 });
 
-console.log(`Server di demo in ascolto su http://localhost:${server.port}`);
-
+console.log(`Server negozio online in ascolto su http://localhost:${server.port}`);
