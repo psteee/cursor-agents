@@ -1,7 +1,7 @@
 import { prompt, z, type PromptHandler } from "mcpez";
 
 
-const helloHandler: PromptHandler = async ({ countTo }) => {
+const spanishCounterHandler: PromptHandler = async ({ countTo }) => {
     return {
         messages: [
             {
@@ -15,9 +15,9 @@ const helloHandler: PromptHandler = async ({ countTo }) => {
     }
 }
 
-prompt("hello world", {
-    description: "Just return hello world",
+prompt("Spanish Counter", {
+    description: "Just a counter in spanish",
     argsSchema: {
         countTo: z.string().describe("The number to count to"),
     },
-}, helloHandler);
+}, spanishCounterHandler);
