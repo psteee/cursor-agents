@@ -1,17 +1,17 @@
-const fruits = ["apple", "banana", "cherry", "elderberry"];
+const fileSummaryGenerator = async (file: string) => {
 
-
-const riddleGenerator = async (fruit: string) => {
-    
-    const prompt = `Please wride a brief and funny riddle about the following fruit: ${fruit}.`
+    const prompt = `Please generate a summary of the following file: ${file}.`
     const child = Bun.spawn(["agent", "--model", "composer-1", "--print", prompt ])
     const result = await child.stdout.text();
     return result;
 }
 
-const riddles = await Promise.all(fruits.map(riddleGenerator));
+const files = ["index.ts", "README.md", "package.json"];
 
+const summaries = await Promise.all(files.map(fileSummaryGenerator));
 
-for (const riddle of riddles) {
-    console.log(riddle);
+//console.log(summaries);
+
+for (const summary of summaries) {
+    console.log(summary);
 }
