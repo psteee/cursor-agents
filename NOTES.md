@@ -1,3 +1,6 @@
+## Shortcut to commit and push changes to GitHub
+
+```json
 [
     {
         "key": "ctrl+cmd+s",
@@ -20,3 +23,4 @@
         }
     }
 ]
+```
