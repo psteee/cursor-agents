@@ -1,6 +1,18 @@
 /**
  * Agent task: set up or update a Bun HTTP server with demo and store endpoints.
- * Run with: bun agent-server-setup.ts
+ *
+ * Usage:
+ *   - Init server:
+ *       bun agent-server-setup.ts --INIT
+ *   - Add an endpoint (generico):
+ *       bun agent-server-setup.ts --ADD <nome_endpoint> "Descrizione in linguaggio naturale di cosa deve fare l'endpoint"
+ *   - Remove an endpoint:
+ *       bun agent-server-setup.ts --REMOVE <nome_endpoint>
+ *   - List all endpoints with descriptions:
+ *       bun agent-server-setup.ts --LIST
+ *
+ * Esempio:
+ *   bun agent-server-setup.ts --ADD sort "Ordina gli item per prezzo crescente e restituisci gli stessi campi degli altri endpoint"
  *
  * Follows the same pattern as index.ts: spawn agent with --model composer-1 --print.
  */
@@ -22,6 +34,82 @@ Create or update server.ts with:
 
 Use only Bun APIs. Do not add Express or other dependencies. Keep the file minimal and runnable with: bun server.ts`;
 
-const child = Bun.spawn(["agent", "--model", "composer-1", "--print", SERVER_SETUP_PROMPT]);
+const [, , ...args] = Bun.argv;
+
+let promptToUse = SERVER_SETUP_PROMPT;
+
+// Generic ADD <endpoint> "<descrizione>"
+if (args[0] === "--ADD" && args[1]) {
+  const endpointName = args[1];
+  const description = args.slice(2).join(" ") || "Nessuna descrizione fornita.";
+
+  const addEndpointPrompt = `You are working in the same Bun-only project and there is already a server.ts file created as described in the INIT prompt (StoreItem, StoreItems, Bun.serve, /, /demo, /store/latest).
+
+Update *only* server.ts by adding a new endpoint.
+
+Endpoint to add:
+  - Path: "/${endpointName}"
+  - Behavior (natural language description from the user):
+    "${description}"
+
+Strict requirements:
+1. Do not remove or change existing endpoints, types, or the StoreItems data structure unless absolutely necessary for the new behavior.
+2. Implement the new endpoint inside the existing Bun.serve fetch handler, using the same style:
+   - Check both req.method and url.pathname.
+   - Use Response.json() for JSON responses and explicit HTTP status codes where appropriate.
+3. Re-use existing types and variables where possible (for example StoreItem and StoreItems).
+4. Keep everything Bun-only (no Express, no external HTTP frameworks).
+5. The server must remain runnable with: bun server.ts.
+
+Answer by showing the full updated contents of server.ts that satisfies the above behavior for "/${endpointName}".`;
+
+  promptToUse = addEndpointPrompt;
+}
+
+// Generic REMOVE <endpoint>
+if (args[0] === "--REMOVE" && args[1]) {
+  const endpointName = args[1];
+
+  const removeEndpointPrompt = `You are working in the same Bun-only project and there is already a server.ts file created as described in the INIT prompt (StoreItem, StoreItems, Bun.serve, /, /demo, /store/latest).
+
+Update *only* server.ts by removing the endpoint whose path matches:
+  "/${endpointName}"
+
+Strict requirements:
+1. Do not remove or change other endpoints, types, or the StoreItems data structure.
+2. Keep the Bun.serve structure and remaining branches intact.
+3. After removal, server.ts must still compile and the server must remain runnable with: bun server.ts.
+4. If multiple branches handle "/${endpointName}", remove only the one that is clearly the dedicated handler for that path (keep generic 404 / fallback logic).
+
+Answer by showing the full updated contents of server.ts with the "/${endpointName}" endpoint removed.`;
+
+  promptToUse = removeEndpointPrompt;
+}
+
+// LIST: show all endpoints and what they do
+if (args[0] === "--LIST") {
+  const listPrompt = `You are working in the same Bun-only project and there is already a server.ts file created as described in the INIT prompt (StoreItem, StoreItems, Bun.serve, /, /demo, /store/latest).
+
+Your task is to read the current server.ts (assume it is up to date in this workspace) and output a concise list of all HTTP endpoints the server exposes.
+
+For each endpoint, include:
+  - HTTP method (GET, POST, etc.)
+  - Path (for example "/", "/demo", "/store/latest")
+  - A short natural language description (1–2 sentences max) of what it does and what it returns.
+
+Format the answer as plain text in this shape:
+
+METHOD PATH - short description
+
+For example:
+GET / - Health check, returns plain text "OK".
+POST /demo - Accepts a JSON body and echoes it back with a message and timestamp.
+
+Only describe real, explicit handlers you find in server.ts (do not invent endpoints). Mention the default 404 / fallback behavior at the end if it exists.`;
+
+  promptToUse = listPrompt;
+}
+
+const child = Bun.spawn(["agent", "--model", "composer-1", "--print", promptToUse]);
 const output = await child.stdout.text();
 console.log(output);
