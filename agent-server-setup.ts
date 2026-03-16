@@ -151,5 +151,6 @@ Only describe real, explicit handlers you find in server.ts (do not invent endpo
 }
 
 const child = Bun.spawn(["agent", "--model", "composer-1", "--print", promptToUse]);
+//const child = Bun.spawn(["gemini", "--model", "gemini-2.5-flash", promptToUse]);
 const output = await child.stdout.text();
 console.log(output);

@@ -57,6 +57,58 @@ const server = Bun.serve({
       });
     }
 
+    // Delete an item from the store
+    if (req.method === "DELETE" && url.pathname === "/un endpoint per eliminare un item dallo store") {
+      const itemId = url.searchParams.get("id");
+      
+      if (!itemId) {
+        return Response.json({ error: "Item ID is required" }, { status: 400 });
+      }
+
+      const itemIndex = StoreItems.findIndex(item => item.id === itemId);
+      
+      if (itemIndex === -1) {
+        return Response.json({ error: "Item not found" }, { status: 404 });
+      }
+
+      const deletedItem = StoreItems[itemIndex];
+      StoreItems.splice(itemIndex, 1);
+
+      return Response.json({
+        message: "Item deleted successfully",
+        deletedItem: deletedItem,
+        remainingCount: StoreItems.length,
+      }, { status: 200 });
+    }
+
+    // Add a random AI-generated item to the store
+    if (req.method === "GET" && url.pathname === "/random-item") {
+      const randomNames = [
+        "Quantum Widget", "Neural Gadget", "AI Assistant Pro", "Smart Device X",
+        "Cyber Tool", "Digital Helper", "Tech Companion", "Virtual Assistant",
+        "Intelligent Module", "Auto Processor", "Smart Sensor", "AI Controller"
+      ];
+      const randomName = randomNames[Math.floor(Math.random() * randomNames.length)];
+      const randomPrice = Math.round((Math.random() * 200 + 10) * 100) / 100; // Between 10.00 and 210.00
+      const randomInStock = Math.random() > 0.5;
+      const randomId = `item-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
+
+      const newItem: StoreItem = {
+        id: randomId,
+        name: randomName,
+        price: randomPrice,
+        inStock: randomInStock,
+      };
+
+      StoreItems.push(newItem);
+
+      return Response.json({
+        message: "Random AI-generated item added successfully",
+        item: newItem,
+        totalCount: StoreItems.length,
+      }, { status: 201 });
+    }
+
     return new Response("Not found", { status: 404 });
   },
 });
