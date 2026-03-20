@@ -1,0 +1,14 @@
+{
+    "mcpServers": {
+      "deepwiki": {
+        "url": "https://mcp.deepwiki.com/mcp"
+      },
+      "hello": {
+        "command": "bun",
+        "args": [
+          "run",
+          ".cursor/mcp/index.ts"
+        ]
+      }
+    }
+  }
