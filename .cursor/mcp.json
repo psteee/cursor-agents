@@ -3,7 +3,7 @@
       "deepwiki": {
         "url": "https://mcp.deepwiki.com/mcp"
       },
-      "hello": {
+      "tools": {
         "command": "bun",
         "args": [
           "run",

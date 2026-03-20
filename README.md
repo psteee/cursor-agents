@@ -22,6 +22,12 @@ bun index.ts
 
 Uses Bun's built-in TypeScript support—no compilation step required. Configured with ESNext, bundler module resolution, React JSX support, and strict type checking.
 
+
+## Links:
+- https://into.md/ -> Trnsform every webpage in .md
+- https://deepwiki.com/ -> wiki from code for every package
+
+
 ## License
 
 Private project, not licensed for public use.
