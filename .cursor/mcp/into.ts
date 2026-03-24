@@ -14,7 +14,7 @@ const markdown = await response.text();
     
     ---
     
-    Please show me the markdown version of the following URL: ${url}`,
+    Please use into to generate the md version of the following URL: ${url} then summarize the content and put it in a .md file called ${url}.md`,
                 },
             }
         ]
