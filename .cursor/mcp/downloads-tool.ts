@@ -53,7 +53,7 @@ tool(
         .optional()
         .describe("Max bytes read per file for read_all (default 50_000)"),
     },
-  },
+  }, 
   async ({ action, recursive = false, maxFiles, maxBytesPerFile }) => {
     const root = downloadsRoot();
     const st = await stat(root).catch(() => null);
