@@ -7,7 +7,14 @@
         "command": "bun",
         "args": [
           "run",
-          ".cursor/mcp/index.ts"
+          ".cursor/mcp/tools.ts"
+        ]
+      },
+      "prompts": {
+        "command": "bun",
+        "args": [
+          "run",
+          ".cursor/mcp/prompts.ts"
         ]
       }
     }
