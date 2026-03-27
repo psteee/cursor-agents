@@ -13,7 +13,7 @@ prompt(
       const result = await child.stdout.text();
       return {
         messages: [
-          { role: "assistant", content: { type: "text", text: `Return the response from Gemini for the following prompt: ${query} and the result is: ${result}` } },          
+          { role: "assistant", content: { type: "text", text: `Return the response from Gemini for the following prompt: ${query} and the result is: ${result}, then summarize the response` } },          
         ],
       };
     }
